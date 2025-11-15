@@ -19,6 +19,7 @@
   "relegated": "Relegated to the Championship",
   "note": "Sample data. Replace with live API if needed.",
   "team": "Team",
+  "news": "News",
   "teams": {
     "Manchester City": "Manchester City",
     "Arsenal": "Arsenal",
