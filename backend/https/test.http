@@ -1,0 +1,64 @@
+# Test
+GET https://api.football-data-api.com/league-tables?key=example&season_id=2012
+
+# League List
+GET https://api.football-data-api.com/league-list?key=example
+
+# County List
+GET https://api.football-data-api.com/country-list?key=example
+
+# Today's Matches
+## 今日行われる試合情報。日付指定でも取れる。リーグ別に絞り込めない気がする。
+## roundIDから取得できるかもしれない
+## 将来の試合が出るかは不明。
+GET https://api.football-data-api.com/todays-matches?key=example
+
+# League Stats
+## リーグ全体の統計
+GET https://api.football-data-api.com/league-season?key=example&season_id=2012
+
+# League Matches
+## リーグ全体の試合。roundIDが含まれている
+GET https://api.football-data-api.com/league-matches?key=example&season_id=2012
+
+# League Teams
+## シーズンごとのチームのスタッツ
+## どれくらいリアルタイム更新なのか気になる
+GET https://api.football-data-api.com/league-teams?key=example&season_id=2012&include=stats
+
+# League Players
+## シーズンごとのプレイヤーのスタッツ
+GET https://api.football-data-api.com/league-players?key=example&season_id=2012&include=stats
+
+# League Referees
+## 審判...w
+GET https://api.football-data-api.com/league-referees?key=YOURKEY&season_id=*
+
+# Team
+## ~
+GET https://api.football-data-api.com/team?key=example&team_id=59&include=stats
+
+# Team - Last 5 / 6 / 10 Stats
+## 直近 5, 6, 10試合のチームスタッツ
+GET https://api.football-data-api.com/lastx?key=example&team_id=59
+
+# Match Details (Stats, H2H, Odds Comparison)
+## 試合
+## roundIDが含まれている
+GET https://api.football-data-api.com/match?key=example&match_id=579101
+
+# League Table
+# ~
+GET https://api.football-data-api.com/league-tables?key=example&season_id=2012
+
+# Player - Individual
+## ~
+GET https://api.football-data-api.com/player-stats?key=YOURKEY&player_id=*
+
+# Referee - Individual
+## ~
+GET https://api.football-data-api.com/referee?key=YOURKEY&referee_id=*
+
+
+# League Tables
+GET https://api.football-data-api.com/league-tables?key=example&season_id=12325
