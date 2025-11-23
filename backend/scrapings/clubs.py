@@ -1,7 +1,11 @@
+from io import StringIO
 from typing import Iterable
 from scrapings.club import Club
 from scrapings.log.logger_setup import get_logger, setup_logging
 from scrapings.utils.html_fetcher import HtmlFetcher
+from scrapings.log.logger_setup import get_logger, setup_logging
+
+import pandas as pd
 
 
 setup_logging()
@@ -32,6 +36,9 @@ CLUBS_25_26 = [
 
 
 class Clubs(list):
+    CLUBS_URL = "https://fbref.com/en/comps/9/Premier-League-Stats"
+    RANKING_TABLE_ID = "results2025-202691_overall"
+
     def __init__(self, clubs: Iterable):
         super().__init__()
 
@@ -41,7 +48,6 @@ class Clubs(list):
                 continue
 
             if isinstance(item, dict):
-                # dict may contain one or more name->url entries
                 for name, url in item.items():
                     self.append(Club(name, url))
                 continue
@@ -61,27 +67,71 @@ class Clubs(list):
     def to_dicts(self) -> dict[str, str]:
         return {c.name: c.url for c in self}
 
+    def ranking(self) -> pd.DataFrame:
+        soup = HtmlFetcher(url=self.CLUBS_URL).get_soup()
+        table = soup.find("table", id=self.RANKING_TABLE_ID)
+
+        if not table:
+            raise ValueError(
+                f"テーブル(id='{self.RANKING_TABLE_ID}')が見つかりませんでした"
+            )
+
+        df = pd.read_html(StringIO(str(table)))[0]
+        return df
+
+    def ranking_with_matchweek(self) -> (pd.DataFrame, int):
+        soup = HtmlFetcher(url=self.CLUBS_URL).get_soup()
+        table = soup.find("table", id=self.RANKING_TABLE_ID)
+
+        if not table:
+            raise ValueError(
+                f"テーブル(id='{self.RANKING_TABLE_ID}')が見つかりませんでした"
+            )
+
+        df = pd.read_html(StringIO(str(table)))[0]
+        return df, df['MP'].max()
+
     def all(self) -> None:
         for club in self:
-            df, _ = club.extract_players()
-            print(df.columns)
+            player_df, squad_df, matchweek = club.extract_standard_players()
+            logger.info(f"Matchweek: {matchweek}")
+            print(player_df.columns)
 
             print(f"\n--- stats_standard_9 テーブル ---")
-            print(f"行数: {len(df)}, 列数: {len(df.columns)}")
+            print(f"行数: {len(player_df)}, 列数: {len(player_df.columns)}")
             print("\n最初の5行:")
-            print(df.head())
+            print(player_df.head())
+            logger.info(f"player_df 見ていきましょう。")
+            for _, row in player_df.iterrows():
+                logger.info(
+                    f"Player:{row[('Unnamed: 0_level_0', 'Player')]}, "
+                    f"Pos:{row[('Unnamed: 2_level_0', 'Pos')]}, "
+                    f"Age:{row[('Unnamed: 3_level_0', 'Age')]}, "
+                )
+            logger.info(f"見てみました。")
 
-            df = club.get_passing_stats()
-            print(f"\n--- div_stats_passing_9 テーブル ---")
-            print(f"行数: {len(df)}, 列数: {len(df.columns)}")
-            print("\n最初の5行:")
-            print(df.head())
+            logger.info(f"squad_df 見ていきましょう。")
+            for _, row in squad_df.iterrows():
+                logger.info(
+                    f"Player:{row[('Unnamed: 0_level_0', 'Player')]}, "
+                    f"Pos:{row[('Unnamed: 2_level_0', 'Pos')]}, "
+                    f"Age:{row[('Unnamed: 3_level_0', 'Age')]}, "
+                )
+            logger.info(f"見てみました。")
+
+            #df = club.get_passing_stats()
+            #print(f"\n--- div_stats_passing_9 テーブル ---")
+            #print(f"行数: {len(df)}, 列数: {len(df.columns)}")
+            #print("\n最初の5行:")
+            #print(df.head())
 
 
 logger.info(f"[Clubs] 開始")
 clubs = Clubs(clubs=CLUBS_25_26)
-print(clubs.find_by_name("Fulham"))
-print(clubs.to_dicts())
-clubs.all()
+#print(clubs.find_by_name("Fulham"))
+#print(clubs.to_dicts())
+#clubs.all()
+ranking_df, matchweek = clubs.ranking_with_matchweek()
+print(ranking_df)
 logger.info(f"[Clubs] 完了")
 

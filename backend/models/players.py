@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
+from sqlalchemy import Integer, String, ForeignKey, DateTime, Float
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -38,7 +38,6 @@ class Player(Base):
         Integer, nullable=True, info={"description:": "Player Matchweek"}
     )
 
-    # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=func.now()
     )
@@ -46,7 +45,6 @@ class Player(Base):
         DateTime(timezone=True), default=func.now(), onupdate=func.now()
     )
 
-    # リレーションシップ
     playing_times: Mapped[list["PlayerStandardPlayingTime"]] = relationship(
         back_populates="player"
     )
